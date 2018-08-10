@@ -40,6 +40,40 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestRPC(t *testing.T){
+	param := "0xf86480808347e7c4945544700e9f7b821d13760e2f9b0da72324f1c9818084f2a75fe41ca050b071418e1ea31b371d0e6f6f1c800361bbc5710a34bb1d5c55a52632e5839aa0644605b7a66910021d49a77aec0b0e12043335373efd29af0bd5591fba0a5f03"
+
+	rpcClient := NewClient("http://localhost:8545")
+
+	ch := make(chan int)
+
+	routine := func(N_try int, ch chan<- int) {
+		errCnt := 0
+		for i := 1; i < N_try; i++ {
+			resp, err := rpcClient.Call("eth_sendRawTransaction", param)
+
+			if err != nil {
+				errCnt++
+				fmt.Println(err.Error())
+				// error handling goes here e.g. network / http error
+			} else {
+				respString, _ := resp.GetString()
+				fmt.Printf("%5d result : %s\n", i, respString)
+			}
+		}
+
+		ch <- errCnt
+	}
+
+	for i := 0; i < 1; i++{
+		go routine(10000, ch)
+	}
+
+	for i := 0; i < 1; i++{
+		fmt.Println(<-ch)
+	}
+}
+
 func TestSimpleRpcCallHeaderCorrect(t *testing.T) {
 	RegisterTestingT(t)
 
