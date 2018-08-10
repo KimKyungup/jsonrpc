@@ -49,29 +49,36 @@ func TestRPC(t *testing.T){
 
 	routine := func(N_try int, ch chan<- int) {
 		errCnt := 0
-		for i := 1; i < N_try; i++ {
-			resp, err := rpcClient.Call("eth_sendRawTransaction", param)
+		for i := 0; i < N_try; i++ {
+			_, err := rpcClient.Call("eth_sendRawTransaction", param)
 
 			if err != nil {
 				errCnt++
-				fmt.Println(err.Error())
+				//fmt.Println(err.Error())
 				// error handling goes here e.g. network / http error
 			} else {
-				respString, _ := resp.GetString()
-				fmt.Printf("%5d result : %s\n", i, respString)
+				//respString, _ := resp.GetString()
+				//fmt.Printf("%5d result : %s\n", i, respString)
 			}
+			//time.Sleep(1 * time.Millisecond)	//1ms -> 1000 tps
 		}
 
 		ch <- errCnt
 	}
 
-	for i := 0; i < 1; i++{
+//	start := time.Now()
+
+	for i := 0; i < 3; i++{
 		go routine(10000, ch)
 	}
 
-	for i := 0; i < 1; i++{
+	for i := 0; i < 3; i++{
 		fmt.Println(<-ch)
 	}
+	//now := time.Now()
+	//duration := now.Sub(start)
+
+	//fmt.Printf("Duration time : %f ms",duration / time.Millisecond)
 }
 
 func TestSimpleRpcCallHeaderCorrect(t *testing.T) {
